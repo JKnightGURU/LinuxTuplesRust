@@ -3,20 +3,28 @@ use std::io::prelude::*;
 use std::mem::*;
 use std::vec::Vec;
 
+/*
+TODO:
+1. разобраться с модулями
+2. реализовать оставшиеся операции
+3. преобразовать к структуре с методами
+3. демо-приложение
+*/
+
 #[repr(C)]
 enum E {
-    Int(i32),
-    Double(f64),
-    Str(String),
+    I(i32),
+    D(f64),
+    S(String),
     None,
 }
 
 impl E {
 	fn println(&self) {
 		match self {
-			&E::Int(ref i) => println!("Int: {}", i),
-			&E::Double(ref d) => println!("Double: {}", d),
-			&E::Str(ref s) => println!("String: {}", s),
+			&E::I(ref i) => println!("Int: {}", i),
+			&E::D(ref d) => println!("Double: {}", d),
+			&E::S(ref s) => println!("String: {}", s),
 			&E::None => println!("Wildcard"),
 		}
 	}
@@ -27,13 +35,13 @@ impl E {
 const PUT: i32 = 0;
 const GET: i32 = 1;
 const READ: i32 = 2;
-/*
 const GET_NB: i32 = 3;
 const READ_NB: i32 = 4;
 const DUMP: i32 = 5;
 const COUNT: i32 = 6;
-const LOG: i32 = 7;
 const REPLACE: i32 = 8;
+/*
+const LOG: i32 = 7;
 */
 
 const asciiS: i32 = 115;
@@ -88,7 +96,7 @@ fn send_tuple(tuple: &Vec<E>, stream: &mut TcpStream) {
     
     for elem in tuple {
     	match elem {
-    		&E::Str(ref s) => string_length += s.len() as i32,
+    		&E::S(ref s) => string_length += s.len() as i32,
     		_ => {}
     	}
     }
@@ -101,7 +109,7 @@ fn send_tuple(tuple: &Vec<E>, stream: &mut TcpStream) {
     
     for elem in tuple {
     	match elem {
-    		&E::Int(ref i) => {
+    		&E::I(ref i) => {
 				//tag
    	 			ctoi(&mut buff, asciiI, 0);
    	 			//union
@@ -109,7 +117,7 @@ fn send_tuple(tuple: &Vec<E>, stream: &mut TcpStream) {
    	 			
    	 			stream.write_all(&buff); 
     		},
-    		&E::Double(ref d) => {
+    		&E::D(ref d) => {
     			//tag
    	 			ctoi(&mut buff, asciiD, 0);
    	 			//union
@@ -117,7 +125,7 @@ fn send_tuple(tuple: &Vec<E>, stream: &mut TcpStream) {
    	 			stream.write_all(&buff);
    	 			
     		},
-    		&E::Str(ref s) => {
+    		&E::S(ref s) => {
     			//tag
    	 			ctoi(&mut buff, asciiS, 0);
    	 			
@@ -140,7 +148,7 @@ fn send_tuple(tuple: &Vec<E>, stream: &mut TcpStream) {
     
     for elem in tuple {
     	match elem {
-    		&E::Str(ref s) => {
+    		&E::S(ref s) => {
     			stream.write_all(s.as_bytes());
     		}
     		_ => {}
@@ -182,11 +190,11 @@ fn recv_tuple(stream: &mut TcpStream) -> Vec<E> {
 		
 		match tag {
 			asciiI => {
-				tuple.push(E::Int(ciot(&buff, 8)));
+				tuple.push(E::I(ciot(&buff, 8)));
 				str_descs.push(str_desc { used: false, offset: 0, len: 0} );
 			},
 			asciiD => {
-				tuple.push(E::Double(cdot(&buff, 8)));
+				tuple.push(E::D(cdot(&buff, 8)));
 				str_descs.push(str_desc { used: false, offset: 0, len: 0} );
 			},
 			asciiS => {
@@ -195,7 +203,7 @@ fn recv_tuple(stream: &mut TcpStream) -> Vec<E> {
 						offset: ciot(&buff, 8),
 						len: ciot(&buff, 16),
 					});
-				tuple.push(E::Str("".to_string()));
+				tuple.push(E::S("".to_string()));
 			},
 			asciiQ => {
 				str_descs.push(str_desc { used: false, offset: 0, len: 0} );
@@ -213,7 +221,7 @@ fn recv_tuple(stream: &mut TcpStream) -> Vec<E> {
 		let mut str_slice = string_space.as_slice();
 		for i in 0..num_elements {
 			if str_descs[i as usize].used == true {
-				tuple[i as usize] = E::Str(String::from_utf8(
+				tuple[i as usize] = E::S(String::from_utf8(
 					string_space[
 						(str_descs[i as usize].offset as usize)..
 						(str_descs[i as usize].offset + str_descs[i as usize].len) as usize].to_vec()).unwrap());
@@ -279,19 +287,162 @@ fn read_tuple(tuple: &Vec<E>, connection: &SocketAddr) -> Vec<E>
 	}
 }
 
+fn get_nb_tuple(tuple: &Vec<E>, connection: &SocketAddr) -> Vec<E>
+{
+	let mut stream_err = TcpStream::connect(connection);
+	match stream_err {
+		Ok(mut stream) => {
+			stream.write_all(&ti(GET_NB));
+			
+			send_tuple(tuple, &mut stream);
+			
+			stream.shutdown(Shutdown::Write);
+			
+			return recv_tuple(&mut stream);
+		}
+		Err(why) => {
+			println!("{}", why);
+			return Vec::<E>::new();
+		}
+	}
+}
+
+fn read_nb_tuple(tuple: &Vec<E>, connection: &SocketAddr) -> Vec<E>
+{
+	let mut stream_err = TcpStream::connect(connection);
+	match stream_err {
+		Ok(mut stream) => {
+			stream.write_all(&ti(READ_NB));
+			
+			send_tuple(tuple, &mut stream);
+			
+			stream.shutdown(Shutdown::Write);
+			
+			return recv_tuple(&mut stream);
+		}
+		Err(why) => {
+			println!("{}", why);
+			return Vec::<E>::new();
+		}
+	}
+}
+
+fn read_all_tuples(tuples: &Vec<Vec<E>>, connection: &SocketAddr) -> Vec<Vec<E>>
+{
+	let mut stream_err = TcpStream::connect(connection);
+	match stream_err {
+		Ok(mut stream) => {
+			stream.write_all(&ti(DUMP));
+			let count: i32 = tuples.len() as i32;
+			stream.write_all(&ti(count));
+			
+			for tuple in tuples {
+				send_tuple(tuple, &mut stream);
+			}
+			
+			let mut buff_4:[u8; 4] = [0; 4];
+			
+			stream.read_exact(&mut buff_4);
+			
+			let recv_count = unsafe { transmute(buff_4) };
+			
+			let mut result:Vec<Vec<E>> = Vec::<Vec<E>>::new();
+			
+			for i in 0..recv_count {
+				result.push(recv_tuple(&mut stream));
+			}
+			return result;
+		}
+		Err(why) => {
+			println!("{}", why);
+			return Vec::<Vec<E>>::new();
+		}
+	}
+}
+
+fn number_of_tuples(tuples: &Vec<Vec<E>>, connection: &SocketAddr) -> i32
+{
+	let mut stream_err = TcpStream::connect(connection);
+	match stream_err {
+		Ok(mut stream) => {
+			stream.write_all(&ti(COUNT));
+			let count: i32 = tuples.len() as i32;
+			stream.write_all(&ti(count));
+			
+			for tuple in tuples {
+				send_tuple(tuple, &mut stream);
+			}
+			
+			let mut buff_4:[u8; 4] = [0; 4];
+			
+			stream.read_exact(&mut buff_4);
+			
+			let recv_count = unsafe { transmute(buff_4) };
+			
+			return recv_count;
+		}
+		Err(why) => {
+			println!("{}", why);
+			return -1;
+		}
+	}
+}
+
+fn replace_tuple(tuple: &Vec<E>, replacement: &Vec<E>, connection: &SocketAddr) {
+		let mut stream_err = TcpStream::connect(connection);
+		match stream_err {
+			Ok(mut stream) => {
+				stream.write_all(&ti(REPLACE));
+				send_tuple(tuple, &mut stream);
+				send_tuple(replacement, &mut stream);
+				let mut buff_4:[u8; 4] = [0; 4];
+				stream.read_exact(&mut buff_4);
+				
+				let op:i32 = unsafe { transmute(buff_4) };
+				if op != REPLACE {
+					println!("Replacement error");
+				}
+			}
+			Err(why) => {
+				println!("{}", why);
+			}
+		}
+}
+
+
 fn main() {
     let connection: SocketAddr = ("127.0.0.1:5000").parse().unwrap();
-    let tuple = vec![E::Int(10), E::Double(10.1), E::Str("123".to_string())];
-    let tuple2 = vec![E::Str("12789".to_string()), E::Int(10), E::Double(5.), E::Str("1234".to_string())];
-    let tuple3 = vec![E::Str("12abv".to_string()), E::Int(11), E::Double(5.), E::Str("123".to_string())];
+    let tuple = vec![E::I(10), E::D(10.1), E::S("123".to_string())];
+    let tuple2 = vec![E::S("12789".to_string()), E::I(10), E::D(5.), E::S("1234".to_string())];
+    let tuple3 = vec![E::S("12abv".to_string()), E::I(11), E::D(5.), E::S("123".to_string())];
     
     put_tuple(&tuple, &connection);
     put_tuple(&tuple2, &connection);
     put_tuple(&tuple3, &connection);
     
-    let tuple4 = read_tuple(&vec![E::None, E::Double(10.1), E::None], &connection);
-    
-    for val in tuple4 {
-    	val.println();
-    }
+    let templates: Vec<Vec<E>> = vec![];
+	let tuples_dump = read_all_tuples(&templates, &connection);
+	
+	for tuple in tuples_dump {
+		for item in tuple {
+			item.println();
+		}
+		println!("");
+	} 
+	
+	println!("Count: {}", number_of_tuples(&templates, &connection));
+	
+	replace_tuple(&tuple2, &tuple3, &connection);
+	
+	let tuples_dump = read_all_tuples(&templates, &connection);
+	
+	for tuple in tuples_dump {
+		for item in tuple {
+			item.println();
+		}
+		println!("");
+	} 
+	
+	println!("Count: {}", number_of_tuples(&templates, &connection));
+	
 }
