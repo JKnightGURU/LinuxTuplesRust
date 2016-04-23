@@ -7,3 +7,6 @@ authors = [ "Your name <you@example.com>" ]
 [[bin]]
 
 name = "hello_world"
+
+[dependencies]
+linux_tuples_client = { path = "linux_tuples_client" }
