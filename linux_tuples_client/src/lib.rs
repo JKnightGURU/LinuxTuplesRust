@@ -16,15 +16,24 @@ pub enum E {
     I(i32),
     D(f64),
     S(String),
+    T(Vec<E>),
     None,
 }
 
 impl E {
-	pub fn println(&self) {
+	pub fn print(&self) {
 		match self {
-			&E::I(ref i) => println!("Int: {}", i),
-			&E::D(ref d) => println!("Double: {}", d),
-			&E::S(ref s) => println!("String: {}", s),
+			&E::I(ref i) => print!("Int: {}, ", i),
+			&E::D(ref d) => print!("Double: {}, ", d),
+			&E::S(ref s) => print!("String: {}, ", s),
+			&E::T(ref v) => {
+				print!("Tuple: [");
+				for e in v {
+					e.print();
+				}
+				print!("], ");
+				
+			}
 			&E::None => println!("Wildcard"),
 		}
 	}
@@ -138,6 +147,13 @@ fn send_tuple(tuple: &Vec<E>, stream: &mut TcpStream) {
    	 			stream.write_all(&buff);
    	 			
    	 			string_length += s.len() as i32;
+    		},
+    		&E::T(ref v) => {
+    			ctoi(&mut buff, ASCII_T, 0);
+    			
+    			stream.write_all(&mut buff);
+    			
+    			send_tuple(v, stream);
     		}
     		&E::None => {
     			ctoi(&mut buff, ASCII_Q, 0);
@@ -206,6 +222,10 @@ fn recv_tuple(stream: &mut TcpStream) -> Vec<E> {
 					});
 				tuple.push(E::S("".to_string()));
 			},
+			ASCII_T => {
+				str_descs.push(str_desc { used: false, offset: 0, len: 0 });
+				tuple.push(E::T(recv_tuple(stream)));
+			}
 			ASCII_Q => {
 				str_descs.push(str_desc { used: false, offset: 0, len: 0} );
 			},
@@ -422,5 +442,13 @@ impl LinuxTuplesConnection {
 				return Err(why);
 			}
 		}
+	}
+	
+	pub fn print_tuple(tuple: &Vec<E>) {
+				print!("Tuple: [");
+				for e in tuple {
+					e.print();
+				}
+				print!("], ");
 	}
 }
