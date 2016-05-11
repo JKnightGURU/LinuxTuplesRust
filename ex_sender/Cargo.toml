@@ -1,0 +1,12 @@
+[package]
+
+name = "ex_sender"
+version = "0.0.1"
+authors = [ "Your name <you@example.com>" ]
+
+[[bin]]
+
+name = "ex_sender"
+
+[dependencies]
+linux_tuples_client = { path = "linux_tuples_client" }

@@ -1,0 +1,6 @@
+[package]
+name = "linux_tuples_client"
+version = "0.1.0"
+authors = ["jknightmmcs <jediknight.93@mail.ru>"]
+
+[dependencies]
