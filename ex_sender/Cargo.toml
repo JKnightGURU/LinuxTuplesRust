@@ -1,8 +1,8 @@
 [package]
 
 name = "ex_sender"
-version = "0.0.1"
-authors = [ "Your name <you@example.com>" ]
+version = "0.1.0"
+authors = [ "jknightmmcs <jediknight.93@mail.ru>" ]
 
 [[bin]]
 
