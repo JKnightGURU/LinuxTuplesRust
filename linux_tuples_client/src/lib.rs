@@ -12,6 +12,7 @@ TODO:
 1. демо-приложение
 */
 
+#[derive(Clone)]
 pub enum E {
     I(i32),
     D(f64),
