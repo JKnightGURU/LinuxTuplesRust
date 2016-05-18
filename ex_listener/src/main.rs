@@ -48,14 +48,39 @@ fn main() {
 		let users_count_init_tuple = vec![E::S("USERS_COUNT".to_string()), E::I(1)];
 		serv.put_tuple(&users_count_init_tuple);
 		let users_list_confirm_tuple = vec![E::S("USER_LIST".to_string()), E::T(vec![E::S(name.clone())])];
-		serv.put_tuple(&users_list_request_tuple);
+		serv.put_tuple(&users_list_confirm_tuple);
 	}
 	
 	//name-based thread
-	loop {
-		let expect_command_tuple = vec![E::S(name.clone()), E::None, E::None];
+	'main: loop {
+		let expect_command_tuple = vec![E::S(name.clone()), E::None, E::None, E::None];
 		let command_received = serv.get_tuple(&expect_command_tuple).unwrap();
-		LinuxTuplesConnection::print_tuple(&command_received);
+		
+		//LinuxTuplesConnection::print_tuple(&command_received);
+		
+		match &command_received[2] {
+			&E::S(ref s) => {
+				let mut sp = s.split(" ").collect::<Vec<&str>>();
+				let mut process = std::process::Command::new(sp[0]);
+				for i in 1..sp.len()
+				{
+					process.arg(sp[i]);
+				}
+				let output = process.output().unwrap().stdout;
+				
+				match &command_received[3] {
+					&E::I(ref command_id) => {
+						let output_tuple = vec![E::I(*command_id), E::S(String::from_utf8(output).unwrap())];
+						serv.put_tuple(&output_tuple);
+					}
+					_ => {}
+				}
+				//println!("{}", String::from_utf8(output).unwrap());
+			}
+			_ => {}
+		}
+		
+		println!("");
 		match &command_received[1] {
 			&E::S(ref s) => {
 				if s.as_str() == "shutdown"
@@ -68,6 +93,7 @@ fn main() {
 						}
 						_ => {}
 					}
+					break 'main;
 				}
 			}
 			_ => {}

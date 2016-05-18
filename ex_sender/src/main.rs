@@ -2,75 +2,44 @@ use std::net::*;
 use std::vec::Vec;
 
 extern crate linux_tuples_client;
+extern crate rand;
+
 use linux_tuples_client::*;
 
 
 fn main() {
-	if std::env::args().count() != 4
+	if std::env::args().count() != 6
 	{
-		println!("ex_listener. USAGE: ex_listener <IP> <port> <node name>");
+		println!("ex_sender. USAGE: ex_sender <IP> <port> <node name> <command> <cmd_text>");
 		return;
 	}
 	
 	let ip: String = std::env::args().nth(1).unwrap();
 	let port: String = std::env::args().nth(2).unwrap();
 	let name: String = std::env::args().nth(3).unwrap();
+	let command: String = std::env::args().nth(4).unwrap();
+	let text: String = std::env::args().nth(5).unwrap();
 	
 	let conn: SocketAddr = (format!("{}:{}", ip, port)).parse().unwrap();
 	let serv = LinuxTuplesConnection { connection: conn };
 	
-	let users_count_request_tuple: Vec<E> = vec![E::S("USERS_COUNT".to_string()), E::None];
-	let users_list_request_tuple: Vec<E> = vec![E::S("USER_LIST".to_string()), E::None];
+	let cmd_id: i32 = rand::random::<i32>();
 	
-	let users_count_list = serv.read_nb_tuple(&users_count_request_tuple).unwrap();
-	if users_count_list.len() > 0
-	{
-		let users_count = serv.get_tuple(&users_count_request_tuple).unwrap();
-		match users_count[0] {
-			E::I(count) => {
-				let users_count_updated = vec![E::S("USERS_COUNT".to_string()), E::I(count + 1)];
-				serv.put_tuple(&users_count_updated);
-			}
-			_ => {}
+	let command_tuple = vec![E::S(name.clone()), E::S(command), E::S(text), E::I(cmd_id)];
+	
+	serv.put_tuple(&command_tuple);	
+	
+	let recv_tuple = vec![E::I(cmd_id), E::None];
+	
+	let output = serv.get_tuple(&recv_tuple).unwrap();
+	
+	match &output[1] {
+		&E::S(ref s) => {
+			println!("{}",s);
+			
 		}
-		
-		let mut users_tuple = serv.get_tuple(&users_list_request_tuple).unwrap();
-		let ref mut users = users_tuple[1];
-		match users {
-			&mut E::T(ref mut v) => {
-				v.push(E::S(name.clone()));
-				let users_list_confirm_tuple = vec![E::S("USER_LIST".to_string()), E::T(v.clone())];
-				serv.put_tuple(&users_list_confirm_tuple);
-			}
-			_ => {}
-		}
-	} else {
-		let users_count_init_tuple = vec![E::S("USERS_COUNT".to_string()), E::I(1)];
-		serv.put_tuple(&users_count_init_tuple);
-		let users_list_confirm_tuple = vec![E::S("USER_LIST".to_string()), E::T(vec![E::S(name.clone())])];
-		serv.put_tuple(&users_list_request_tuple);
+		_ => {}
 	}
 	
-	//name-based thread
-	loop {
-		let expect_command_tuple = vec![E::S(name.clone()), E::None, E::None];
-		let command_received = serv.get_tuple(&expect_command_tuple).unwrap();
-		LinuxTuplesConnection::print_tuple(&command_received);
-		match &command_received[1] {
-			&E::S(ref s) => {
-				if s.as_str() == "shutdown"
-				{
-					let users_count = serv.get_tuple(&users_count_request_tuple).unwrap();
-					match users_count[0] {
-						E::I(count) => {
-							let users_count_updated = vec![E::S("USERS_COUNT".to_string()), E::I(count + 1)];
-							serv.put_tuple(&users_count_updated);
-						}
-						_ => {}
-					}
-				}
-			}
-			_ => {}
-		}
-	}
+	println!("Done!");
 }
