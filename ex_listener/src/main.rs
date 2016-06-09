@@ -26,23 +26,16 @@ fn main() {
 	if users_count_list.len() > 0
 	{
 		let users_count = serv.get_tuple(&users_count_request_tuple).unwrap();
-		match users_count[1] {
-			E::I(count) => {
+		if let E::I(count) = users_count[1] {
 				let users_count_updated = vec![E::S("USERS_COUNT".to_string()), E::I(count + 1)];
 				serv.put_tuple(&users_count_updated);
-			}
-			_ => {}
 		}
 		
 		let mut users_tuple = serv.get_tuple(&users_list_request_tuple).unwrap();
-		let ref mut users = users_tuple[1];
-		match users {
-			&mut E::T(ref mut v) => {
+		if let &mut E::T(ref mut v) = &mut users_tuple[1] {
 				v.push(E::S(name.clone()));
 				let users_list_confirm_tuple = vec![E::S("USER_LIST".to_string()), E::T(v.clone())];
 				serv.put_tuple(&users_list_confirm_tuple);
-			}
-			_ => {}
 		}
 	} else {
 		let users_count_init_tuple = vec![E::S("USERS_COUNT".to_string()), E::I(1)];
@@ -53,13 +46,12 @@ fn main() {
 	
 	//name-based thread
 	'main: loop {
-		let expect_command_tuple = vec![E::S(name.clone()), E::None, E::None, E::None];
-		let command_received = serv.get_tuple(&expect_command_tuple).unwrap();
+		let command_received = serv.get_tuple(
+			&vec![E::S(name.clone()), E::None, E::None, E::None]).unwrap();
 		
 		//LinuxTuplesConnection::print_tuple(&command_received);
 		
-		match &command_received[2] {
-			&E::S(ref s) => {
+		if let &E::S(ref s) = &command_received[2] {
 				let mut sp = s.split(" ").collect::<Vec<&str>>();
 				let mut process = std::process::Command::new(sp[0]);
 				for i in 1..sp.len()
@@ -68,71 +60,46 @@ fn main() {
 				}
 				let output = process.output().unwrap().stdout;
 				
-				match &command_received[3] {
-					&E::I(ref command_id) => {
+				if let &E::I(ref command_id) = &command_received[3] {
 						let output_tuple = vec![E::I(*command_id), E::S(String::from_utf8(output).unwrap())];
 						serv.put_tuple(&output_tuple);
-					}
-					_ => {}
 				}
 				//println!("{}", String::from_utf8(output).unwrap());
-			}
-			_ => {}
 		}
 		
 		println!("");
-		match &command_received[1] {
-			&E::S(ref s) => {
-				if s.as_str() == "shutdown"
-				{
-					let users_count = serv.get_tuple(&users_count_request_tuple).unwrap();
-					match users_count[1] {
-						E::I(count) => {
-							if count > 1 {
-								serv.put_tuple(&vec![E::S("USERS_COUNT".to_string()), E::I(count - 1)]);
-							}
-						}
-						_ => {}
-					}
-					
-					let mut users_list = serv.get_tuple(&users_list_request_tuple).unwrap();
-					let mut shouldRemove: bool = false;
-					
-					match &mut users_list[1] {
-						&mut E::T(ref mut users) => {
-							println!("shutting down... user_list tuple identified");
-							let mut ind: usize = 0;
-							for i in 0..users.len() {
-								match &users[i] {
-									&E::S(ref uname) => {
-										if uname.as_str() == name {
-											ind = i;
-										}
-									}
-									_ => {}
-								}
-
-							}
-							println!("removing {}...", ind);
-							println!("current state: ");
-							
-							users.remove(ind);
-							if users.len() == 0 {
-								shouldRemove = true;
-							}							
-						}
-						_ => {}
-					}
-					
-					if !shouldRemove {
-						println!("sending back...");
-						serv.put_tuple(&users_list);
-					} 
-					
-					break 'main;
+		if command_received[1] == E::S("shutdown".to_string())
+		{
+			let users_count = serv.get_tuple(&users_count_request_tuple).unwrap();
+			if let E::I(count) = users_count[1] {
+				if count > 1 {
+					serv.put_tuple(&vec![E::S("USERS_COUNT".to_string()), E::I(count - 1)]);
 				}
 			}
-			_ => {}
+			
+			let mut users_list = serv.get_tuple(&users_list_request_tuple).unwrap();
+			let mut shouldRemove: bool = false;
+			
+			
+			if let &mut E::T(ref mut users) = &mut users_list[1] {
+				let mut ind: usize = 0;
+				for i in 0..users.len() {
+					if users[i] == E::S(name.clone()) {
+								ind = i;
+					}
+				}
+				users.remove(ind);
+				if users.len() == 0 {
+					shouldRemove = true;
+				}							
+			}
+					
+			if !shouldRemove {
+				serv.put_tuple(&users_list);
+			} 
+					
+			break 'main;
 		}
 	}
+
 }

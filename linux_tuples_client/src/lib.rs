@@ -12,7 +12,7 @@ TODO:
 1. демо-приложение
 */
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq)]
 pub enum E {
     I(i32),
     D(f64),
