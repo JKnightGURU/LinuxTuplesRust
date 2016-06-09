@@ -26,7 +26,7 @@ fn main() {
 	if users_count_list.len() > 0
 	{
 		let users_count = serv.get_tuple(&users_count_request_tuple).unwrap();
-		match users_count[0] {
+		match users_count[1] {
 			E::I(count) => {
 				let users_count_updated = vec![E::S("USERS_COUNT".to_string()), E::I(count + 1)];
 				serv.put_tuple(&users_count_updated);
@@ -86,13 +86,49 @@ fn main() {
 				if s.as_str() == "shutdown"
 				{
 					let users_count = serv.get_tuple(&users_count_request_tuple).unwrap();
-					match users_count[0] {
+					match users_count[1] {
 						E::I(count) => {
-							let users_count_updated = vec![E::S("USERS_COUNT".to_string()), E::I(count + 1)];
-							serv.put_tuple(&users_count_updated);
+							if count > 1 {
+								serv.put_tuple(&vec![E::S("USERS_COUNT".to_string()), E::I(count - 1)]);
+							}
 						}
 						_ => {}
 					}
+					
+					let mut users_list = serv.get_tuple(&users_list_request_tuple).unwrap();
+					let mut shouldRemove: bool = false;
+					
+					match &mut users_list[1] {
+						&mut E::T(ref mut users) => {
+							println!("shutting down... user_list tuple identified");
+							let mut ind: usize = 0;
+							for i in 0..users.len() {
+								match &users[i] {
+									&E::S(ref uname) => {
+										if uname.as_str() == name {
+											ind = i;
+										}
+									}
+									_ => {}
+								}
+
+							}
+							println!("removing {}...", ind);
+							println!("current state: ");
+							
+							users.remove(ind);
+							if users.len() == 0 {
+								shouldRemove = true;
+							}							
+						}
+						_ => {}
+					}
+					
+					if !shouldRemove {
+						println!("sending back...");
+						serv.put_tuple(&users_list);
+					} 
+					
 					break 'main;
 				}
 			}
