@@ -25,17 +25,16 @@ fn main() {
 	let users_count_list = serv.read_nb_tuple(&users_count_request_tuple).unwrap();
 	if users_count_list.len() > 0
 	{
-		let users_count = serv.get_tuple(&users_count_request_tuple).unwrap();
-		if let E::I(count) = users_count[1] {
-				let users_count_updated = vec![E::S("USERS_COUNT".to_string()), E::I(count + 1)];
-				serv.put_tuple(&users_count_updated);
+		if let E::I(count) = users_count_list[1] {
+				serv.replace_tuple(&users_count_list, &vec![E::S("USERS_COUNT".to_string()), E::I(count + 1)]);
 		}
 		
-		let mut users_tuple = serv.get_tuple(&users_list_request_tuple).unwrap();
-		if let &mut E::T(ref mut v) = &mut users_tuple[1] {
-				v.push(E::S(name.clone()));
-				let users_list_confirm_tuple = vec![E::S("USER_LIST".to_string()), E::T(v.clone())];
-				serv.put_tuple(&users_list_confirm_tuple);
+		let mut users_tuple = serv.read_nb_tuple(&users_list_request_tuple).unwrap();
+		if let &E::T(ref v) = &users_tuple[1] {
+				let mut v_new = v.clone();
+				v_new.push(E::S(name.clone()));
+				let users_list_confirm_tuple = vec![E::S("USER_LIST".to_string()), E::T(v_new.clone())];
+				serv.replace_tuple(&users_tuple, &users_list_confirm_tuple);
 		}
 	} else {
 		let users_count_init_tuple = vec![E::S("USERS_COUNT".to_string()), E::I(1)];
