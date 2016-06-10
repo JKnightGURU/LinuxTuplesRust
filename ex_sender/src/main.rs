@@ -3,7 +3,6 @@ use std::vec::Vec;
 
 extern crate linux_tuples_client;
 extern crate time;
-extern crate rand;
 
 use linux_tuples_client::*;
 
