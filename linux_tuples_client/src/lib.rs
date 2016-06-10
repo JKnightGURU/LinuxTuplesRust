@@ -40,6 +40,7 @@ impl E {
 	}
 }
 
+#[derive(Clone)]
 pub struct LinuxTuplesConnection {
 	pub connection: SocketAddr,
 }
