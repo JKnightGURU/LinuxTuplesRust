@@ -1,0 +1,5 @@
+Examples: ex_sender and ex_listener.
+
+They'll provide an idea of how to use tuple spaces using this crate. Just open the source code, and you'll see how easy it is.
+
+Documentation: linux_tuples_client/doc/lib/index.html
