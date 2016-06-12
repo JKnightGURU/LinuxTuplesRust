@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `LinuxTuplesConnection` struct in crate `lib`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, LinuxTuplesConnection">
+
+    <title>lib::LinuxTuplesConnection - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='index.html'>lib</a></p><script>window.sidebarCurrent = {name: 'LinuxTuplesConnection', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content struct">
+<h1 class='fqn'><span class='in-band'>Struct <a href='index.html'>lib</a>::<wbr><a class='struct' href=''>LinuxTuplesConnection</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-71' class='srclink' href='../src/lib/src/lib.rs.html#51-53' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct LinuxTuplesConnection {
+    pub connection: <a class='enum' href='https://doc.rust-lang.org/nightly/std/net/addr/enum.SocketAddr.html' title='std::net::addr::SocketAddr'>SocketAddr</a>,
+}</pre><div class='docblock'><p>Used to connect to LinuxTuples server</p>
+
+<h1 id='examples' class='section-header'><a href='#examples'>Examples</a></h1>
+<pre class='rust rust-example-rendered'>
+<span class='kw'>let</span> <span class='ident'>conn</span> <span class='op'>=</span> <span class='ident'>LinuxTuplesConnection</span> { <span class='ident'>addr</span> };</pre>
+</div><h2 class='fields'>Fields</h2>
+<table><tr class='stab '>
+                             <td id='structfield.connection'><code>connection</code></td><td></td></tr></table><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl <a class='struct' href='../lib/struct.LinuxTuplesConnection.html' title='lib::LinuxTuplesConnection'>LinuxTuplesConnection</a></code></h3><div class='impl-items'><h4 id='method.put_tuple' class='method'><code>fn <a href='#method.put_tuple' class='fnname'>put_tuple</a>(&amp;self, tuple: &amp;<a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='enum' href='../lib/enum.E.html' title='lib::E'>E</a>&gt;) -&gt; <a class='type' href='https://doc.rust-lang.org/nightly/std/io/error/type.Result.html' title='std::io::error::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>&gt;</code></h4>
+<div class='docblock'><p>Puts tuple to the tuple space</p>
+
+<h1 id='examples-1' class='section-header'><a href='#examples-1'>Examples</a></h1>
+<pre class='rust rust-example-rendered'>
+<span class='ident'>conn</span>.<span class='ident'>put_tuple</span>(<span class='kw-2'>&amp;</span><span class='macro'>vec</span><span class='macro'>!</span>[<span class='ident'>E</span>::<span class='ident'>I</span>(<span class='number'>123</span>), <span class='ident'>E</span>::<span class='ident'>S</span>(<span class='string'>&quot;123&quot;</span>.<span class='ident'>to_string</span>())]);</pre>
+
+<h1 id='errors' class='section-header'><a href='#errors'>Errors</a></h1>
+<p>Returns Err if disconnected, or incorrect data arrived</p>
+</div><h4 id='method.get_tuple' class='method'><code>fn <a href='#method.get_tuple' class='fnname'>get_tuple</a>(&amp;self, tuple: &amp;<a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='enum' href='../lib/enum.E.html' title='lib::E'>E</a>&gt;) -&gt; <a class='type' href='https://doc.rust-lang.org/nightly/std/io/error/type.Result.html' title='std::io::error::Result'>Result</a>&lt;<a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='enum' href='../lib/enum.E.html' title='lib::E'>E</a>&gt;&gt;</code></h4>
+<div class='docblock'><p>Gets tuple from the tuple space</p>
+
+<h1 id='examples-2' class='section-header'><a href='#examples-2'>Examples</a></h1>
+<pre class='rust rust-example-rendered'>
+<span class='kw'>let</span> <span class='ident'>tuple</span> <span class='op'>=</span> <span class='ident'>conn</span>.<span class='ident'>get_tuple</span>(<span class='kw-2'>&amp;</span><span class='macro'>vec</span><span class='macro'>!</span>[<span class='ident'>E</span>::<span class='ident'>I</span>(<span class='number'>123</span>), <span class='ident'>E</span>::<span class='prelude-val'>None</span>]).<span class='ident'>unwrap</span>();</pre>
+
+<h1 id='errors-1' class='section-header'><a href='#errors-1'>Errors</a></h1>
+<p>Returns Err if disconnected, or incorrect data arrived</p>
+</div><h4 id='method.read_tuple' class='method'><code>fn <a href='#method.read_tuple' class='fnname'>read_tuple</a>(&amp;self, tuple: &amp;<a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='enum' href='../lib/enum.E.html' title='lib::E'>E</a>&gt;) -&gt; <a class='type' href='https://doc.rust-lang.org/nightly/std/io/error/type.Result.html' title='std::io::error::Result'>Result</a>&lt;<a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='enum' href='../lib/enum.E.html' title='lib::E'>E</a>&gt;&gt;</code></h4>
+<div class='docblock'><p>Reads tuple from the tuple space</p>
+
+<h1 id='examples-3' class='section-header'><a href='#examples-3'>Examples</a></h1>
+<pre class='rust rust-example-rendered'>
+<span class='kw'>let</span> <span class='ident'>tuple</span> <span class='op'>=</span> <span class='ident'>conn</span>.<span class='ident'>read_tuple</span>(<span class='kw-2'>&amp;</span><span class='macro'>vec</span><span class='macro'>!</span>[<span class='ident'>E</span>::<span class='ident'>I</span>(<span class='number'>123</span>), <span class='ident'>E</span>::<span class='prelude-val'>None</span>]).<span class='ident'>unwrap</span>();</pre>
+
+<h1 id='errors-2' class='section-header'><a href='#errors-2'>Errors</a></h1>
+<p>Returns Err if disconnected, or incorrect data arrived</p>
+</div><h4 id='method.get_nb_tuple' class='method'><code>fn <a href='#method.get_nb_tuple' class='fnname'>get_nb_tuple</a>(&amp;self, tuple: &amp;<a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='enum' href='../lib/enum.E.html' title='lib::E'>E</a>&gt;) -&gt; <a class='type' href='https://doc.rust-lang.org/nightly/std/io/error/type.Result.html' title='std::io::error::Result'>Result</a>&lt;<a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='enum' href='../lib/enum.E.html' title='lib::E'>E</a>&gt;&gt;</code></h4>
+<div class='docblock'><p>Gets tuple from the tuple space; non-blocking</p>
+
+<p>If nothing found, returns empty vector.</p>
+
+<h1 id='examples-4' class='section-header'><a href='#examples-4'>Examples</a></h1>
+<pre class='rust rust-example-rendered'>
+<span class='kw'>let</span> <span class='ident'>tuple</span> <span class='op'>=</span> <span class='ident'>conn</span>.<span class='ident'>get_nb_tuple</span>(<span class='kw-2'>&amp;</span><span class='macro'>vec</span><span class='macro'>!</span>[<span class='ident'>E</span>::<span class='ident'>I</span>(<span class='number'>123</span>), <span class='ident'>E</span>::<span class='ident'>S</span>(<span class='string'>&quot;123&quot;</span>.<span class='ident'>to_string</span>())]).<span class='ident'>unwrap</span>();</pre>
+
+<h1 id='errors-3' class='section-header'><a href='#errors-3'>Errors</a></h1>
+<p>Returns Err if disconnected, or incorrect data arrived</p>
+</div><h4 id='method.read_nb_tuple' class='method'><code>fn <a href='#method.read_nb_tuple' class='fnname'>read_nb_tuple</a>(&amp;self, tuple: &amp;<a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='enum' href='../lib/enum.E.html' title='lib::E'>E</a>&gt;) -&gt; <a class='type' href='https://doc.rust-lang.org/nightly/std/io/error/type.Result.html' title='std::io::error::Result'>Result</a>&lt;<a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='enum' href='../lib/enum.E.html' title='lib::E'>E</a>&gt;&gt;</code></h4>
+<div class='docblock'><p>Reads tuple from the tuple space; non-blocking</p>
+
+<p>If nothing found, returns empty vector.</p>
+
+<h1 id='examples-5' class='section-header'><a href='#examples-5'>Examples</a></h1>
+<pre class='rust rust-example-rendered'>
+<span class='kw'>let</span> <span class='ident'>tuple</span> <span class='op'>=</span> <span class='ident'>conn</span>.<span class='ident'>read_nb_tuple</span>(<span class='kw-2'>&amp;</span><span class='macro'>vec</span><span class='macro'>!</span>[<span class='ident'>E</span>::<span class='ident'>I</span>(<span class='number'>123</span>), <span class='ident'>E</span>::<span class='ident'>S</span>(<span class='string'>&quot;123&quot;</span>.<span class='ident'>to_string</span>())]).<span class='ident'>unwrap</span>();</pre>
+
+<h1 id='errors-4' class='section-header'><a href='#errors-4'>Errors</a></h1>
+<p>Returns Err if disconnected, or incorrect data arrived</p>
+</div><h4 id='method.read_all_tuples' class='method'><code>fn <a href='#method.read_all_tuples' class='fnname'>read_all_tuples</a>(&amp;self, tuples: &amp;<a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='enum' href='../lib/enum.E.html' title='lib::E'>E</a>&gt;&gt;) -&gt; <a class='type' href='https://doc.rust-lang.org/nightly/std/io/error/type.Result.html' title='std::io::error::Result'>Result</a>&lt;<a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='enum' href='../lib/enum.E.html' title='lib::E'>E</a>&gt;&gt;&gt;</code></h4>
+<div class='docblock'><p>Reads all tuples from the tuple space that satisfy templates</p>
+
+<p>If nothing found, returns empty vector. If template list is empty, returns all tuples in the space.</p>
+
+<h1 id='examples-6' class='section-header'><a href='#examples-6'>Examples</a></h1>
+<pre class='rust rust-example-rendered'>
+<span class='kw'>let</span> <span class='ident'>tuple_list</span> <span class='op'>=</span> <span class='ident'>conn</span>.<span class='ident'>read_all_tuples</span>(<span class='kw-2'>&amp;</span><span class='macro'>vec</span><span class='macro'>!</span>[<span class='macro'>vec</span><span class='macro'>!</span>[<span class='ident'>E</span>::<span class='ident'>I</span>(<span class='number'>123</span>), <span class='ident'>E</span>::<span class='prelude-val'>None</span>], <span class='macro'>vec</span><span class='macro'>!</span>[<span class='ident'>E</span>::<span class='ident'>S</span>(<span class='string'>&quot;123&quot;</span>.<span class='ident'>to_string</span>()), <span class='ident'>E</span>::<span class='prelude-val'>None</span>]]).<span class='ident'>unwrap</span>();</pre>
+
+<h1 id='errors-5' class='section-header'><a href='#errors-5'>Errors</a></h1>
+<p>Returns Err if disconnected, or incorrect data arrived</p>
+</div><h4 id='method.number_of_tuples' class='method'><code>fn <a href='#method.number_of_tuples' class='fnname'>number_of_tuples</a>(&amp;self, tuples: &amp;<a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='enum' href='../lib/enum.E.html' title='lib::E'>E</a>&gt;&gt;) -&gt; <a class='type' href='https://doc.rust-lang.org/nightly/std/io/error/type.Result.html' title='std::io::error::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>&gt;</code></h4>
+<div class='docblock'><p>Calculates a number tuples from the tuple space that satisfy templates</p>
+
+<p>If nothing found, 0. If template list is empty, returns number of all tuples in the space.</p>
+
+<h1 id='examples-7' class='section-header'><a href='#examples-7'>Examples</a></h1>
+<pre class='rust rust-example-rendered'>
+<span class='kw'>let</span> <span class='ident'>count</span> <span class='op'>=</span> <span class='ident'>conn</span>.<span class='ident'>number_of_tuples</span>(<span class='kw-2'>&amp;</span><span class='macro'>vec</span><span class='macro'>!</span>[<span class='macro'>vec</span><span class='macro'>!</span>[<span class='ident'>E</span>::<span class='ident'>I</span>(<span class='number'>123</span>), <span class='ident'>E</span>::<span class='prelude-val'>None</span>], <span class='macro'>vec</span><span class='macro'>!</span>[<span class='ident'>E</span>::<span class='ident'>S</span>(<span class='string'>&quot;123&quot;</span>.<span class='ident'>to_string</span>()), <span class='ident'>E</span>::<span class='prelude-val'>None</span>]]).<span class='ident'>unwrap</span>();</pre>
+
+<h1 id='errors-6' class='section-header'><a href='#errors-6'>Errors</a></h1>
+<p>Returns Err if disconnected, or incorrect data arrived</p>
+</div><h4 id='method.replace_tuple' class='method'><code>fn <a href='#method.replace_tuple' class='fnname'>replace_tuple</a>(&amp;self, tuple: &amp;<a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='enum' href='../lib/enum.E.html' title='lib::E'>E</a>&gt;, replacement: &amp;<a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='enum' href='../lib/enum.E.html' title='lib::E'>E</a>&gt;) -&gt; <a class='type' href='https://doc.rust-lang.org/nightly/std/io/error/type.Result.html' title='std::io::error::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>&gt;</code></h4>
+<div class='docblock'><p>Replaces one tuple with another in the space</p>
+
+<h1 id='examples-8' class='section-header'><a href='#examples-8'>Examples</a></h1>
+<pre class='rust rust-example-rendered'>
+<span class='ident'>conn</span>.<span class='ident'>replace_tuple</span>(<span class='kw-2'>&amp;</span><span class='macro'>vec</span><span class='macro'>!</span>[<span class='ident'>E</span>::<span class='ident'>I</span>(<span class='number'>123</span>)], <span class='kw-2'>&amp;</span><span class='macro'>vec</span><span class='macro'>!</span>[<span class='ident'>E</span>::<span class='ident'>S</span>(<span class='string'>&quot;123&quot;</span>.<span class='ident'>to_string</span>())]).<span class='ident'>unwrap</span>();</pre>
+
+<h1 id='errors-7' class='section-header'><a href='#errors-7'>Errors</a></h1>
+<p>Returns Err if source tuple wasn&#39;t found or data was corrupted/socket disconnected.</p>
+</div><h4 id='method.server_log' class='method'><code>fn <a href='#method.server_log' class='fnname'>server_log</a>(&amp;self) -&gt; <a class='type' href='https://doc.rust-lang.org/nightly/std/io/error/type.Result.html' title='std::io::error::Result'>Result</a>&lt;<a class='struct' href='https://doc.rust-lang.org/nightly/collections/string/struct.String.html' title='collections::string::String'>String</a>&gt;</code></h4>
+<div class='docblock'><p>Returns a list of operations done to a tuple.</p>
+
+<h1 id='examples-9' class='section-header'><a href='#examples-9'>Examples</a></h1>
+<pre class='rust rust-example-rendered'>
+<span class='kw'>let</span> <span class='ident'>log</span> <span class='op'>=</span> <span class='ident'>conn</span>.<span class='ident'>server_log</span>();</pre>
+
+<h1 id='errors-8' class='section-header'><a href='#errors-8'>Errors</a></h1>
+<p>Returns Err if disconnected, or incorrect data arrived</p>
+</div><h4 id='method.print_tuple' class='method'><code>fn <a href='#method.print_tuple' class='fnname'>print_tuple</a>(tuple: &amp;<a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='enum' href='../lib/enum.E.html' title='lib::E'>E</a>&gt;)</code></h4>
+<div class='docblock'><p>Prints a tuple to the standard output</p>
+
+<p># Examples
+ <code>LinuxTuplesConnection::print_tuple(&amp;vec![E::I(123)]);</code></p>
+</div></div><h2 id='implementations'>Trait Implementations</h2><h3 id='derived_implementations'>Derived Implementations </h3><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> for <a class='struct' href='../lib/struct.LinuxTuplesConnection.html' title='lib::LinuxTuplesConnection'>LinuxTuplesConnection</a></code></h3><div class='impl-items'><h4 id='method.clone' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class='struct' href='../lib/struct.LinuxTuplesConnection.html' title='lib::LinuxTuplesConnection'>LinuxTuplesConnection</a></code></h4>
+<h4 id='method.clone_from' class='method'><span class="since">1.0.0</span><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: &amp;Self)</code></h4>
+</div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../";
+        window.currentCrate = "lib";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../jquery.js"></script>
+    <script src="../main.js"></script>
+    
+    <script defer src="../search-index.js"></script>
+</body>
+</html>

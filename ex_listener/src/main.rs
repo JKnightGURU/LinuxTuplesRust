@@ -104,22 +104,24 @@ fn main() {
 		println!("");
 		if command_received[1] == E::S("shutdown".to_string())
 		{
-			let users_count = serv.get_tuple(&users_count_request_tuple).unwrap();
+			let users_count = serv.read_tuple(&users_count_request_tuple).unwrap();
 			if let E::I(count) = users_count[1] {
 				if count > 1 {
-					serv.put_tuple(&vec![E::S("USERS_COUNT".to_string()), E::I(count - 1)]);
+					serv.replace_tuple(&users_count, &vec![E::S("USERS_COUNT".to_string()), E::I(count - 1)]);
+				} else {
+					serv.get_tuple(&users_count);
 				}
 			}
 			
-			let mut users_list = serv.get_tuple(&users_list_request_tuple).unwrap();
+			let mut users_list_old = serv.read_tuple(&users_list_request_tuple).unwrap();
 			let mut shouldRemove: bool = false;
-			
+			let mut users_list = users_list_old.clone();
 			
 			if let &mut E::T(ref mut users) = &mut users_list[1] {
 				let mut ind: usize = 0;
 				for i in 0..users.len() {
 					if users[i] == E::S(name.clone()) {
-								ind = i;
+						ind = i;
 					}
 				}
 				users.remove(ind);
@@ -129,8 +131,10 @@ fn main() {
 			}
 					
 			if !shouldRemove {
-				serv.put_tuple(&users_list);
-			} 
+				serv.replace_tuple(&users_list_old, &users_list);
+			} else {
+				serv.get_tuple(&users_list_old);
+			}
 					
 			break 'main;
 		}

@@ -38,12 +38,8 @@ fn main() {
 			serv.put_tuple(&vec![E::S(name.clone()), E::S(command), E::S(text), E::I(cmd_id)]);	
 			let output = serv.get_tuple(&vec![E::I(cmd_id), E::None]).unwrap();
 			
-			match &output[1] {
-				&E::S(ref s) => {
-					println!("{}",s);
-					
-				}
-				_ => {}
+			if let &E::S(ref s) = &output[1] {
+				 	println!("{}",s);
 			}
 			
 			println!("Done!");
@@ -73,16 +69,12 @@ fn main() {
 	{
 		let users = serv.read_nb_tuple(&vec![E::S("USER_LIST".to_string()), E::None]).unwrap();
 		if users.len() > 0 {
-			match &users[1] {
-				&E::T(ref t) => {
+			if let &E::T(ref t) =  &users[1] {
 					for user in t {
-						match user {
-							&E::S(ref username) => println!("{}", username),
-							_ => {}
+						if let &E::S(ref username) = user {
+							 println!("{}", username);
 						}
 					}	 
-				}
-				_ => {}
 			}
 		}
 	}

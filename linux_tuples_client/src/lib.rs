@@ -1,17 +1,11 @@
 
-//use std;
 use std::net::*;
 use std::io::prelude::*;
 use std::mem::*;
 use std::vec::Vec;
 
 
-/*
-TODO:
-1. Вложенные кортежи
-1. демо-приложение
-*/
-
+/// Enum, which is used to contain LinuxTuples element
 #[derive(Clone, PartialEq)]
 pub enum E {
     I(i32),
@@ -22,6 +16,12 @@ pub enum E {
 }
 
 impl E {
+	/// Prints an element to the standard output
+	/// # Examples
+	///
+	/// ```
+	/// # e.print()
+	/// ```
 	pub fn print(&self) {
 		match self {
 			&E::I(ref i) => print!("Int: {}, ", i),
@@ -40,6 +40,13 @@ impl E {
 	}
 }
 
+/// Used to connect to LinuxTuples server
+///
+/// # Examples
+///
+/// ```
+/// let conn = LinuxTuplesConnection { addr };
+/// ``` 
 #[derive(Clone)]
 pub struct LinuxTuplesConnection {
 	pub connection: SocketAddr,
@@ -257,6 +264,17 @@ fn recv_tuple(stream: &mut TcpStream) -> Vec<E> {
 }
 
 impl LinuxTuplesConnection {
+	/// Puts tuple to the tuple space
+	///
+	/// # Examples
+	///
+	/// ```
+	/// conn.put_tuple(&vec![E::I(123), E::S("123".to_string())]);
+	/// ```
+	///
+	/// # Errors
+	///
+	/// Returns Err if disconnected, or incorrect data arrived
 	pub fn put_tuple(&self, tuple: &Vec<E>) -> std::io::Result<bool> {
 	    let mut stream_err = TcpStream::connect(&self.connection);
 	    match stream_err {
@@ -272,6 +290,17 @@ impl LinuxTuplesConnection {
 	    }
 	}
 	
+	/// Gets tuple from the tuple space
+	///
+	/// # Examples
+	///
+	/// ```
+	/// let tuple = conn.get_tuple(&vec![E::I(123), E::None]).unwrap();
+	/// ```
+	/// 
+	/// # Errors
+	///
+	/// Returns Err if disconnected, or incorrect data arrived
 	pub fn get_tuple(&self, tuple: &Vec<E>) -> std::io::Result<Vec<E>>
 	{
 		let mut stream_err = TcpStream::connect(&self.connection);
@@ -291,6 +320,16 @@ impl LinuxTuplesConnection {
 		}
 	}
 	
+	/// Reads tuple from the tuple space
+	///
+	/// # Examples
+	///
+	/// ```
+	/// let tuple = conn.read_tuple(&vec![E::I(123), E::None]).unwrap();
+	/// ```
+	/// # Errors
+	///
+	/// Returns Err if disconnected, or incorrect data arrived
 	pub fn read_tuple(&self, tuple: &Vec<E>) -> std::io::Result<Vec<E>>
 	{
 		let mut stream_err = TcpStream::connect(&self.connection);
@@ -310,6 +349,18 @@ impl LinuxTuplesConnection {
 		}
 	}
 	
+	/// Gets tuple from the tuple space; non-blocking
+	///
+	/// If nothing found, returns empty vector.
+	/// # Examples
+	///
+	/// ```
+	/// let tuple = conn.get_nb_tuple(&vec![E::I(123), E::S("123".to_string())]).unwrap();
+	/// ```
+	///
+	/// # Errors
+	///
+	/// Returns Err if disconnected, or incorrect data arrived
 	pub fn get_nb_tuple(&self, tuple: &Vec<E>) -> std::io::Result<Vec<E>>
 	{
 		let mut stream_err = TcpStream::connect(&self.connection);
@@ -329,6 +380,19 @@ impl LinuxTuplesConnection {
 		}
 	}
 	
+	/// Reads tuple from the tuple space; non-blocking
+	///
+	/// If nothing found, returns empty vector.
+	///
+	/// # Examples
+	///
+	/// ```
+	/// let tuple = conn.read_nb_tuple(&vec![E::I(123), E::S("123".to_string())]).unwrap();
+	/// ```
+	///
+	/// # Errors
+	///
+	/// Returns Err if disconnected, or incorrect data arrived
 	pub fn read_nb_tuple(&self, tuple: &Vec<E>) -> std::io::Result<Vec<E>>
 	{
 		let mut stream_err = TcpStream::connect(&self.connection);
@@ -348,6 +412,19 @@ impl LinuxTuplesConnection {
 		}
 	}
 	
+	/// Reads all tuples from the tuple space that satisfy templates
+	///
+	/// If nothing found, returns empty vector. If template list is empty, returns all tuples in the space.
+	///
+	/// # Examples
+	///
+	/// ```
+	/// let tuple_list = conn.read_all_tuples(&vec![vec![E::I(123), E::None], vec![E::S("123".to_string()), E::None]]).unwrap();
+	/// ```
+	///
+	/// # Errors
+	///
+	/// Returns Err if disconnected, or incorrect data arrived
 	pub fn read_all_tuples(&self, tuples: &Vec<Vec<E>>) -> std::io::Result<Vec<Vec<E>>>
 	{
 		let mut stream_err = TcpStream::connect(&self.connection);
@@ -380,6 +457,19 @@ impl LinuxTuplesConnection {
 		}
 	}
 	
+	/// Calculates a number tuples from the tuple space that satisfy templates
+	///
+	/// If nothing found, 0. If template list is empty, returns number of all tuples in the space.
+	///
+	/// # Examples
+	///
+	/// ```
+	/// let count = conn.number_of_tuples(&vec![vec![E::I(123), E::None], vec![E::S("123".to_string()), E::None]]).unwrap();
+	/// ```
+	///
+	/// # Errors
+	///
+	/// Returns Err if disconnected, or incorrect data arrived
 	pub fn number_of_tuples(&self, tuples: &Vec<Vec<E>>) -> std::io::Result<i32>
 	{
 		let mut stream_err = TcpStream::connect(&self.connection);
@@ -407,6 +497,18 @@ impl LinuxTuplesConnection {
 		}
 	}
 	
+	/// Replaces one tuple with another in the space
+	///
+	///
+	/// # Examples
+	///
+	/// ```
+	/// conn.replace_tuple(&vec![E::I(123)], &vec![E::S("123".to_string())]).unwrap();
+	/// ```
+	///
+	/// # Errors
+	///
+	/// Returns Err if source tuple wasn't found or data was corrupted/socket disconnected.
 	pub fn replace_tuple(&self, tuple: &Vec<E>, replacement: &Vec<E>) -> std::io::Result<bool> {
 			let mut stream_err = TcpStream::connect(&self.connection);
 			match stream_err {
@@ -430,7 +532,16 @@ impl LinuxTuplesConnection {
 				}
 			}
 	}
-	
+	/// Returns a list of operations done to a tuple.
+	///
+	/// # Examples
+	///
+	/// ```
+	/// let log = conn.server_log();
+	/// ```
+	/// # Errors
+	///
+	/// Returns Err if disconnected, or incorrect data arrived
 	pub fn server_log(&self) -> std::io::Result<String> {
 		let mut stream_err = TcpStream::connect(&self.connection);
 		match stream_err {
@@ -446,6 +557,13 @@ impl LinuxTuplesConnection {
 		}
 	}
 	
+	
+	///Prints a tuple to the standard output
+	///
+	/// # Examples
+	/// ```
+	/// LinuxTuplesConnection::print_tuple(&vec![E::I(123)]);
+	/// ```
 	pub fn print_tuple(tuple: &Vec<E>) {
 				print!("Tuple: [");
 				for e in tuple {

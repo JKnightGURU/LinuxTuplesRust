@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["E","Enum, which is used to contain LinuxTuples element"]],"struct":[["LinuxTuplesConnection","Used to connect to LinuxTuples server"]]});
