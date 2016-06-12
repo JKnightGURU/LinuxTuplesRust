@@ -2,5 +2,9 @@
 name = "linux_tuples_client"
 version = "0.1.0"
 authors = ["jknightmmcs <jediknight.93@mail.ru>"]
+license = "MIT"
+description = "Client library for LinuxTuples tuple-space implementation. Requires 64-bit support."
+repository = "https://github.com/jknightmmcs/LinuxTuplesRust/tree/master/linux_tuples_client"
+
 
 [dependencies]
